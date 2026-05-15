@@ -18,7 +18,13 @@ function getAll() {
     return [...SEED_TASKS];
   }
   const raw = fs.readFileSync(TASKS_FILE, 'utf8');
-  return JSON.parse(raw);
+  try {
+    return JSON.parse(raw);
+  } catch (e) {
+    console.error('tasks.json is corrupt, re-seeding:', e.message);
+    fs.writeFileSync(TASKS_FILE, JSON.stringify(SEED_TASKS, null, 2));
+    return [...SEED_TASKS];
+  }
 }
 
 function add(title, priority) {
