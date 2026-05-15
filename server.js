@@ -16,12 +16,15 @@ app.get('/tasks', (req, res) => {
 // POST /tasks — create a new task
 app.post('/tasks', (req, res) => {
   const { title, priority } = req.body;
-  const VALID_PRIORITIES = ['low', 'medium', 'high'];
-  if (!title?.trim() || !VALID_PRIORITIES.includes(priority)) {
-    return res.status(400).json({ error: 'title and priority (low, medium, high) are required' });
+  if (!title?.trim()) {
+    return res.status(400).json({ error: 'title is required' });
   }
   if (title.trim().length > 200) {
     return res.status(400).json({ error: 'Title must be 200 characters or fewer' });
+  }
+  const VALID_PRIORITIES = ['low', 'medium', 'high'];
+  if (!VALID_PRIORITIES.includes(priority)) {
+    return res.status(400).json({ error: `priority must be one of: low, medium, high` });
   }
   const newTask = store.add(title.trim(), priority);
   res.status(201).json(newTask);
