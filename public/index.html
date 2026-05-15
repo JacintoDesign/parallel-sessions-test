@@ -158,6 +158,35 @@
       background: #fee2e2;
     }
 
+    /* Filter bar */
+    .filter-bar {
+      display: flex;
+      gap: 0.4rem;
+      margin-bottom: 1rem;
+    }
+
+    .filter-btn {
+      padding: 0.35rem 0.85rem;
+      font-size: 0.85rem;
+      font-weight: 500;
+      border: 1px solid #d0d0d8;
+      border-radius: 999px;
+      background: #fff;
+      color: #4b5563;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s, border-color 0.15s;
+    }
+
+    .filter-btn:hover {
+      background: #f3f4f6;
+    }
+
+    .filter-btn.active {
+      background: #6366f1;
+      color: #fff;
+      border-color: #6366f1;
+    }
+
     /* Empty state */
     .empty-state {
       text-align: center;
@@ -186,6 +215,13 @@
       <button type="submit">Add task</button>
     </form>
 
+    <div class="filter-bar" id="filterBar">
+      <button class="filter-btn active" data-filter="all">All</button>
+      <button class="filter-btn" data-filter="high">High</button>
+      <button class="filter-btn" data-filter="medium">Medium</button>
+      <button class="filter-btn" data-filter="low">Low</button>
+    </div>
+
     <ul class="task-list" id="taskList"></ul>
   </div>
 
@@ -194,6 +230,9 @@
     const addForm = document.getElementById('addForm');
     const titleInput = document.getElementById('titleInput');
     const prioritySelect = document.getElementById('prioritySelect');
+
+    let allTasks = [];
+    let activeFilter = 'all';
 
     function getPriorityLabel(priority) {
       return priority.charAt(0).toUpperCase() + priority.slice(1);
@@ -237,6 +276,13 @@
       });
     }
 
+    function applyFilter() {
+      const filtered = activeFilter === 'all'
+        ? allTasks
+        : allTasks.filter(function (t) { return t.priority === activeFilter; });
+      renderTasks(filtered);
+    }
+
     function fetchAndRender() {
       fetch('/tasks')
         .then(function (res) {
@@ -244,13 +290,24 @@
           return res.json();
         })
         .then(function (tasks) {
-          renderTasks(tasks);
+          allTasks = tasks;
+          applyFilter();
         })
         .catch(function (err) {
           console.error(err);
           taskList.innerHTML = '<li class="empty-state">Failed to load tasks. Please refresh.</li>';
         });
     }
+
+    document.getElementById('filterBar').addEventListener('click', function (e) {
+      const btn = e.target.closest('.filter-btn');
+      if (!btn) return;
+      activeFilter = btn.dataset.filter;
+      document.querySelectorAll('.filter-btn').forEach(function (b) {
+        b.classList.toggle('active', b === btn);
+      });
+      applyFilter();
+    });
 
     function deleteTask(id) {
       fetch('/tasks/' + id, { method: 'DELETE' })
