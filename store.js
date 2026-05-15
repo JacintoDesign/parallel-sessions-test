@@ -15,7 +15,7 @@ const SEED_TASKS = [
 function getAll() {
   if (!fs.existsSync(TASKS_FILE)) {
     fs.writeFileSync(TASKS_FILE, JSON.stringify(SEED_TASKS, null, 2), 'utf8');
-    return SEED_TASKS;
+    return [...SEED_TASKS];
   }
   const raw = fs.readFileSync(TASKS_FILE, 'utf8');
   return JSON.parse(raw);
