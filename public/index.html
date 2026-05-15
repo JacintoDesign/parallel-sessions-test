@@ -244,6 +244,7 @@
         })
         .catch(function (err) {
           console.error(err);
+          taskList.innerHTML = '<li class="empty-state">Failed to load tasks. Please refresh.</li>';
         });
     }
 
@@ -257,16 +258,20 @@
         })
         .catch(function (err) {
           console.error(err);
+          alert('Failed to delete task. Please try again.');
         });
     }
 
     addForm.addEventListener('submit', function (event) {
       event.preventDefault();
 
-      var title = titleInput.value.trim();
-      var priority = prioritySelect.value;
+      const title = titleInput.value.trim();
+      const priority = prioritySelect.value;
 
       if (!title) return;
+
+      const submitBtn = addForm.querySelector('button[type="submit"]');
+      submitBtn.disabled = true;
 
       fetch('/tasks', {
         method: 'POST',
@@ -284,6 +289,10 @@
         })
         .catch(function (err) {
           console.error(err);
+          alert('Failed to add task. Please try again.');
+        })
+        .finally(function () {
+          submitBtn.disabled = false;
         });
     });
 
