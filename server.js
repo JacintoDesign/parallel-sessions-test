@@ -16,8 +16,9 @@ app.get('/tasks', (req, res) => {
 // POST /tasks — create a new task
 app.post('/tasks', (req, res) => {
   const { title, priority } = req.body;
-  if (!title || !priority) {
-    return res.status(400).json({ error: 'Missing required fields: title and priority' });
+  const VALID_PRIORITIES = ['low', 'medium', 'high'];
+  if (!title?.trim() || !VALID_PRIORITIES.includes(priority)) {
+    return res.status(400).json({ error: 'title and priority (low, medium, high) are required' });
   }
   const newTask = store.add(title, priority);
   res.status(201).json(newTask);
@@ -30,6 +31,12 @@ app.delete('/tasks/:id', (req, res) => {
     return res.status(404).json({ error: `Task with id "${req.params.id}" not found` });
   }
   res.status(204).send();
+});
+
+// Error handler for server failures
+app.use((err, req, res, next) => {
+  console.error(err);
+  res.status(500).json({ error: 'Internal server error' });
 });
 
 app.listen(3000, () => {
